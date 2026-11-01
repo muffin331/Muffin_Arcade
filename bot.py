@@ -8,12 +8,11 @@ TOKEN = "ТВОЙ_ТОКЕН_БОТА_ОТ_BOTFATHER"
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
-# Твой личный ID администратора
 ADMIN_IDS = [1116150221] 
-WEBAPP_URL = "https://твой-сайт.onrender.com/index.html"
+WEBAPP_URL = "https://muffin331.github.io/Muffin_Arcade/"
 
-users_db = {}   # {user_id: {"balance": 100, "used_promos": []}}
-promos_db = {}  # {code: {"reward": 500, "max_uses": 10, "uses_left": 10, "expires_at": datetime}}
+users_db = {}   
+promos_db = {}  
 
 def is_admin(user_id: int) -> bool:
     return user_id in ADMIN_IDS
@@ -21,8 +20,8 @@ def is_admin(user_id: int) -> bool:
 def get_main_keyboard():
     builder = InlineKeyboardBuilder()
     builder.button(text="🧁 Играть в Muffin Game", web_app=types.WebAppInfo(url=WEBAPP_URL))
-    builder.button(text="⭐ Купить монеты / Stars", callback_data="shop_stars")
-    builder.button(text="🎁 Кейсы с подарками", callback_data="shop_cases")
+    builder.button(text="⭐ Пополнить Stars", callback_data="shop_stars")
+    builder.button(text="🎁 Кейсы", callback_data="shop_cases")
     builder.button(text="🎟️ Ввести промокод", callback_data="input_promo")
     builder.adjust(1, 2, 1)
     return builder.as_markup()
@@ -32,7 +31,7 @@ async def cmd_start(message: types.Message):
     await message.answer(
         "🧁 **Muffin Arcade — твой главный игровой хаб в Telegram!**\n\n"
         "🚀 Летай на ракете-кексе в Muffin Fly и забирай крупные иксы.\n"
-        "🎁 Открывай секретные кейсы и выбивай подарки и Stars!\n"
+        "🎁 Открывай секретные кейсы с рулеткой и выбивай подарки!\n"
         "🛍️ Обменивай накопленные Stars на реальные Telegram-подарки.",
         reply_markup=get_main_keyboard(),
         parse_mode="Markdown"
@@ -41,7 +40,7 @@ async def cmd_start(message: types.Message):
 @dp.callback_query(F.data == "shop_stars")
 async def cb_shop_stars(callback: types.CallbackQuery):
     builder = InlineKeyboardBuilder()
-    builder.button(text="🧁 Открыть магазин в игре", web_app=types.WebAppInfo(url=WEBAPP_URL))
+    builder.button(text="🧁 Открыть магазин в Mini App", web_app=types.WebAppInfo(url=WEBAPP_URL))
     builder.button(text="⬅️ Назад", callback_data="main_menu")
     builder.adjust(1)
     await callback.message.edit_text("⭐ **Покупка Telegram Stars**", reply_markup=builder.as_markup(), parse_mode="Markdown")
@@ -49,10 +48,10 @@ async def cb_shop_stars(callback: types.CallbackQuery):
 @dp.callback_query(F.data == "shop_cases")
 async def cb_shop_cases(callback: types.CallbackQuery):
     builder = InlineKeyboardBuilder()
-    builder.button(text="🎁 Открыть кейсы в Mini App", web_app=types.WebAppInfo(url=WEBAPP_URL))
+    builder.button(text="🎁 Открыть кейс в Mini App", web_app=types.WebAppInfo(url=WEBAPP_URL))
     builder.button(text="⬅️ Назад", callback_data="main_menu")
     builder.adjust(1)
-    await callback.message.edit_text("🎁 **Кейсы с подарками**", reply_markup=builder.as_markup(), parse_mode="Markdown")
+    await callback.message.edit_text("🎁 **Кейсы с подарками и рулеткой**", reply_markup=builder.as_markup(), parse_mode="Markdown")
 
 @dp.callback_query(F.data == "input_promo")
 async def cb_input_promo(callback: types.CallbackQuery):
@@ -63,13 +62,12 @@ async def cb_input_promo(callback: types.CallbackQuery):
 async def cb_main_menu(callback: types.CallbackQuery):
     await callback.message.edit_text("🧁 **Muffin Arcade — твой главный игровой хаб в Telegram!**", reply_markup=get_main_keyboard(), parse_mode="Markdown")
 
-# --- АДМИН ПАНЕЛЬ ---
 @dp.message(Command("admin"))
 async def cmd_admin(message: types.Message):
     if not is_admin(message.from_user.id): return
     await message.answer(
         "👑 **Админ-панель**\n\n"
-        "• `/give [ID] [Stars]` — выдать Stars профилю\n"
+        "• `/give [ID] [Stars]` — выдать Stars\n"
         "• `/addpromo [КОД] [Stars] [Кол-во] [Часы]` — создать промокод",
         parse_mode="Markdown"
     )
