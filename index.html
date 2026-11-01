@@ -226,22 +226,34 @@
             </div>
         </div>
 
-        <!-- STARS SCREEN -->
+        <!-- STARS SCREEN (Обновленные курсы) -->
         <div id="starsScreen" class="screen">
             <button class="back-btn" onclick="showScreen('mainScreen')">⬅ В меню</button>
             <div class="section-title">⭐ Пополнение Stars</div>
             <div class="stars-list">
                 <div class="stars-card">
-                    <div><div class="stars-amount">+500.000 ⭐</div><div style="font-size: 11px; color: #8c82a8;">Пакет Старт</div></div>
-                    <button class="stars-price" onclick="buyCoinsWithStars(500000, 10)">Купить</button>
+                    <div><div class="stars-amount">+100 ⭐</div><div style="font-size: 11px; color: #8c82a8;">Пакет Базовый</div></div>
+                    <button class="stars-price" onclick="buyCoinsWithStars(100, 5)">5 ⭐</button>
                 </div>
                 <div class="stars-card">
-                    <div><div class="stars-amount">+1.000.000 ⭐</div><div style="font-size: 11px; color: #8c82a8;">Пакет Премиум</div></div>
-                    <button class="stars-price" onclick="buyCoinsWithStars(1000000, 20)">Купить</button>
+                    <div><div class="stars-amount">+200 ⭐</div><div style="font-size: 11px; color: #8c82a8;">Стандарт</div></div>
+                    <button class="stars-price" onclick="buyCoinsWithStars(200, 10)">10 ⭐</button>
                 </div>
                 <div class="stars-card">
-                    <div><div class="stars-amount">+5.000.000 ⭐</div><div style="font-size: 11px; color: #8c82a8;">Максимальный</div></div>
-                    <button class="stars-price" onclick="buyCoinsWithStars(5000000, 80)">Купить</button>
+                    <div><div class="stars-amount">+500 ⭐</div><div style="font-size: 11px; color: #8c82a8;">Оптимальный</div></div>
+                    <button class="stars-price" onclick="buyCoinsWithStars(500, 15)">15 ⭐</button>
+                </div>
+                <div class="stars-card">
+                    <div><div class="stars-amount">+1.000 ⭐</div><div style="font-size: 11px; color: #8c82a8;">Продвинутый</div></div>
+                    <button class="stars-price" onclick="buyCoinsWithStars(1000, 25)">25 ⭐</button>
+                </div>
+                <div class="stars-card">
+                    <div><div class="stars-amount">+1.700 ⭐</div><div style="font-size: 11px; color: #8c82a8;">Большой пакет</div></div>
+                    <button class="stars-price" onclick="buyCoinsWithStars(1700, 50)">50 ⭐</button>
+                </div>
+                <div class="stars-card">
+                    <div><div class="stars-amount">+4.000 ⭐</div><div style="font-size: 11px; color: #8c82a8;">Премиум</div></div>
+                    <button class="stars-price" onclick="buyCoinsWithStars(4000, 100)">100 ⭐</button>
                 </div>
             </div>
         </div>
@@ -367,7 +379,6 @@
         }
         renderFlightCanvas();
 
-        // Установлен начальный баланс 3000 Stars (проверяем localStorage, если там уже был другой — можно сбросить или обновить)
         let balance = localStorage.getItem('muffin_balance') ? parseInt(localStorage.getItem('muffin_balance')) : 3000;
         document.getElementById('balance').innerText = balance.toLocaleString('ru-RU');
         let gameInterval = null, soundLoopInterval = null, currentMultiplier = 1.00, currentBet = 100, isPlaying = false, crashPoint = 1.00;
@@ -422,7 +433,7 @@
             resetGameButton();
         }
         function crashGame() {
-            clearInterval(gameInterval); clearInterval(soundLoopInterval); playCrashSound();
+            clearInterval(gameInterval); clearInterval(soundLoopInternal); playCrashSound();
             isPlaying = false; isExploded = true; renderFlightCanvas();
             document.getElementById('status').innerText = `РАКЕТА РАЗБИЛАСЬ`;
             resetGameButton();
@@ -440,7 +451,7 @@
         }
         function buyCoinsWithStars(coins, stars) {
             updateBalance(balance + coins);
-            alert(`[ТЕСТ] Начислено ${coins.toLocaleString()} ⭐!`);
+            alert(`[ТЕСТ] Успешно начислено +${coins.toLocaleString()} ⭐ за ${stars} Telegram Stars!`);
         }
     </script>
 </body>
