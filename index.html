@@ -38,13 +38,8 @@
             background: #252033; border: 1px solid #332b45; border-radius: 16px;
             padding: 16px; display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; cursor: pointer;
         }
-        .game-card.disabled { opacity: 0.6; cursor: not-allowed; }
         .game-icon { font-size: 42px; margin-bottom: 8px; }
         .game-name { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
-        .badge-soon {
-            position: absolute; top: 8px; right: 8px; background: #ff4757; color: white;
-            font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 8px;
-        }
         .nav-actions { display: flex; gap: 8px; flex-wrap: wrap; }
         .nav-btn {
             flex: 1; min-width: 45%; background: linear-gradient(135deg, #6c5ce7, #a29bfe);
@@ -74,17 +69,26 @@
         .history-list { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
         .history-item { background: #121019; padding: 6px 10px; border-radius: 8px; font-size: 13px; font-weight: 800; color: #00ffcc; white-space: nowrap; }
         .history-item.low { color: #ff4757; }
-        .shop-grid, .stars-list { display: flex; flex-direction: column; gap: 10px; }
+        
+        .shop-grid, .stars-list { display: flex; flex-direction: column; gap: 10px; max-height: 60vh; overflow-y: auto; padding-right: 4px; }
         .shop-card, .stars-card { background: #252033; border: 1px solid #332b45; border-radius: 14px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; }
         .shop-info { display: flex; align-items: center; gap: 12px; }
         .shop-emoji { font-size: 32px; }
         .shop-name { font-weight: 700; font-size: 15px; }
         .shop-price { font-size: 13px; color: #ffcc00; font-weight: 800; }
         .buy-btn { background: linear-gradient(135deg, #ff4757, #ff6b81); color: white; border: none; padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 13px; cursor: pointer; }
-        .case-box { background: #252033; border: 1px solid #332b45; border-radius: 16px; padding: 20px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 14px; }
-        .case-icon { font-size: 64px; }
-        .case-drop-result { font-size: 18px; font-weight: 800; color: #ffcc00; min-height: 30px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .open-case-btn { background: linear-gradient(135deg, #e84118, #c23616); color: white; border: none; padding: 14px 24px; border-radius: 14px; font-weight: 800; font-size: 16px; cursor: pointer; width: 100%; }
+        
+        /* Рулетка кейсов */
+        .case-box { background: #252033; border: 1px solid #332b45; border-radius: 16px; padding: 16px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+        .case-roulette-window { width: 100%; height: 90px; background: #121019; border-radius: 12px; border: 2px solid #332b45; overflow: hidden; position: relative; display: flex; align-items: center; }
+        .case-roulette-pointer { position: absolute; top: 0; bottom: 0; left: 50%; width: 3px; background: #ff4757; z-index: 5; transform: translateX(-50%); box-shadow: 0 0 8px #ff4757; }
+        .case-strip { display: flex; gap: 10px; position: absolute; left: 0; will-change: transform; transition: transform 4s cubic-bezier(0.15, 0.85, 0.35, 1); }
+        .roulette-item { min-width: 75px; height: 75px; background: #1c1827; border: 1px solid #332b45; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 24px; gap: 4px; }
+        .roulette-item span { font-size: 10px; font-weight: 700; color: #a29bfe; }
+
+        .case-drop-result { font-size: 16px; font-weight: 800; color: #ffcc00; min-height: 26px; }
+        .open-case-btn { background: linear-gradient(135deg, #e84118, #c23616); color: white; border: none; padding: 12px 20px; border-radius: 14px; font-weight: 800; font-size: 15px; cursor: pointer; width: 100%; }
+
         .stars-amount { font-weight: 800; font-size: 15px; color: #ffcc00; }
         .stars-price { background: linear-gradient(135deg, #2e86de, #54a0ff); color: white; border: none; padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 13px; cursor: pointer; }
         .promo-box { background: #252033; border: 1px solid #332b45; border-radius: 14px; padding: 12px; display: flex; gap: 8px; }
@@ -97,7 +101,7 @@
         <div class="top-nav">
             <div class="app-title">MUFFIN ARCADE</div>
             <div class="balance-badge" onclick="showScreen('starsScreen')">
-                <span id="balance">100</span> ⭐
+                <span id="balance">5000</span> ⭐
             </div>
         </div>
 
@@ -117,14 +121,13 @@
                 </div>
             </div>
 
-            <!-- Promo Input in App -->
             <div class="promo-box">
                 <input type="text" id="promoInput" class="promo-input" placeholder="ПРОМОКОД">
                 <button class="promo-btn" onclick="applyPromo()">Ввести</button>
             </div>
 
             <div class="nav-actions">
-                <button class="nav-btn" onclick="showScreen('shopScreen')">🛍️ Магазин</button>
+                <button class="nav-btn" onclick="showScreen('shopScreen')">🛍️ Магазин подарков</button>
                 <button class="nav-btn cases-btn" onclick="showScreen('casesScreen')">🎁 Кейсы</button>
                 <button class="nav-btn stars-btn" onclick="showScreen('starsScreen')">⭐ Пополнить Stars</button>
             </div>
@@ -157,12 +160,20 @@
         <!-- CASES SCREEN -->
         <div id="casesScreen" class="screen">
             <button class="back-btn" onclick="showScreen('mainScreen')">⬅ В меню</button>
-            <div class="section-title">🎁 Кейсы с призами</div>
+            <div class="section-title">🎁 Кейс с подарками</div>
             <div class="case-box">
-                <div style="font-size: 13px; color: #8c82a8;">Цена открытия: <b style="color: #ffcc00;">150 ⭐</b></div>
-                <div class="case-icon" id="caseIcon">🎁📦</div>
+                <div style="font-size: 13px; color: #8c82a8;">Цена открытия: <b style="color: #ffcc00;">50 ⭐</b></div>
+                
+                <!-- Рулетка прокрутки -->
+                <div class="case-roulette-window">
+                    <div class="case-roulette-pointer"></div>
+                    <div class="case-strip" id="caseStrip">
+                        <!-- Элементы генерируются динамически -->
+                    </div>
+                </div>
+
                 <div class="case-drop-result" id="caseResult">Нажмите кнопку ниже!</div>
-                <button class="open-case-btn" id="openCaseBtn" onclick="openCase()">Открыть кейс (150 ⭐)</button>
+                <button class="open-case-btn" id="openCaseBtn" onclick="openCase()">Открыть кейс (50 ⭐)</button>
             </div>
         </div>
 
@@ -172,18 +183,44 @@
             <div class="section-title">🛍️ Подарки Telegram</div>
             <div class="shop-grid">
                 <div class="shop-card">
-                    <div class="shop-info">
-                        <div class="shop-emoji">🧸</div>
-                        <div><div class="shop-name">Медведь</div><div class="shop-price">500.000 ⭐</div></div>
-                    </div>
-                    <button class="buy-btn" onclick="buyGift('Медведь', 500000)">Купить</button>
+                    <div class="shop-info"><div class="shop-emoji">💖</div><div><div class="shop-name">Сердце</div><div class="shop-price">15 ⭐</div></div></div>
+                    <button class="buy-btn" onclick="buyGift('Сердце', 15)">Купить</button>
                 </div>
                 <div class="shop-card">
-                    <div class="shop-info">
-                        <div class="shop-emoji">🌹</div>
-                        <div><div class="shop-name">Роза</div><div class="shop-price">700.000 ⭐</div></div>
-                    </div>
-                    <button class="buy-btn" onclick="buyGift('Роза', 700000)">Купить</button>
+                    <div class="shop-info"><div class="shop-emoji">🎁</div><div><div class="shop-name">Подарок-коробка</div><div class="shop-price">25 ⭐</div></div></div>
+                    <button class="buy-btn" onclick="buyGift('Подарок-коробка', 25)">Купить</button>
+                </div>
+                <div class="shop-card">
+                    <div class="shop-info"><div class="shop-emoji">🌹</div><div><div class="shop-name">Роза</div><div class="shop-price">25 ⭐</div></div></div>
+                    <button class="buy-btn" onclick="buyGift('Роза', 25)">Купить</button>
+                </div>
+                <div class="shop-card">
+                    <div class="shop-info"><div class="shop-emoji">🎂</div><div><div class="shop-name">Торт со свечами</div><div class="shop-price">50 ⭐</div></div></div>
+                    <button class="buy-btn" onclick="buyGift('Торт со свечами', 50)">Купить</button>
+                </div>
+                <div class="shop-card">
+                    <div class="shop-info"><div class="shop-emoji">💐</div><div><div class="shop-name">Букет цветов</div><div class="shop-price">50 ⭐</div></div></div>
+                    <button class="buy-btn" onclick="buyGift('Букет цветов', 50)">Купить</button>
+                </div>
+                <div class="shop-card">
+                    <div class="shop-info"><div class="shop-emoji">🚀</div><div><div class="shop-name">Ракета</div><div class="shop-price">50 ⭐</div></div></div>
+                    <button class="buy-btn" onclick="buyGift('Ракета', 50)">Купить</button>
+                </div>
+                <div class="shop-card">
+                    <div class="shop-info"><div class="shop-emoji">🍾</div><div><div class="shop-name">Бутылка шампанского</div><div class="shop-price">50 ⭐</div></div></div>
+                    <button class="buy-btn" onclick="buyGift('Бутылка шампанского', 50)">Купить</button>
+                </div>
+                <div class="shop-card">
+                    <div class="shop-info"><div class="shop-emoji">🏆</div><div><div class="shop-name">Золотой кубок</div><div class="shop-price">100 ⭐</div></div></div>
+                    <button class="buy-btn" onclick="buyGift('Золотой кубок', 100)">Купить</button>
+                </div>
+                <div class="shop-card">
+                    <div class="shop-info"><div class="shop-emoji">💍</div><div><div class="shop-name">Кольцо с бриллиантом</div><div class="shop-price">100 ⭐</div></div></div>
+                    <button class="buy-btn" onclick="buyGift('Кольцо с бриллиантом', 100)">Купить</button>
+                </div>
+                <div class="shop-card">
+                    <div class="shop-info"><div class="shop-emoji">💎</div><div><div class="shop-name">Крупный бриллиант</div><div class="shop-price">100 ⭐</div></div></div>
+                    <button class="buy-btn" onclick="buyGift('Крупный бриллиант', 100)">Купить</button>
                 </div>
             </div>
         </div>
@@ -194,54 +231,113 @@
             <div class="section-title">⭐ Пополнение Stars</div>
             <div class="stars-list">
                 <div class="stars-card">
-                    <div><div class="stars-amount">+100 ⭐</div><div style="font-size: 11px; color: #8c82a8;">Мини</div></div>
-                    <button class="stars-price" onclick="buyCoinsWithStars(100, 5)">5 ⭐</button>
+                    <div><div class="stars-amount">+50 ⭐</div><div style="font-size: 11px; color: #8c82a8;">Мини пакет</div></div>
+                    <button class="stars-price" onclick="buyCoinsWithStars(50, 5)">5 ⭐</button>
                 </div>
                 <div class="stars-card">
-                    <div><div class="stars-amount">+200 ⭐</div><div style="font-size: 11px; color: #8c82a8;">Старт</div></div>
-                    <button class="stars-price" onclick="buyCoinsWithStars(200, 10)">10 ⭐</button>
+                    <div><div class="stars-amount">+100 ⭐</div><div style="font-size: 11px; color: #8c82a8;">Стандарт</div></div>
+                    <button class="stars-price" onclick="buyCoinsWithStars(100, 10)">10 ⭐</button>
+                </div>
+                <div class="stars-card">
+                    <div><div class="stars-amount">+250 ⭐</div><div style="font-size: 11px; color: #8c82a8;">Оптимальный</div></div>
+                    <button class="stars-price" onclick="buyCoinsWithStars(250, 25)">25 ⭐</button>
+                </div>
+                <div class="stars-card">
+                    <div><div class="stars-amount">+500 ⭐</div><div style="font-size: 11px; color: #8c82a8;">Популярный</div></div>
+                    <button class="stars-price" onclick="buyCoinsWithStars(500, 50)">50 ⭐</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+        const prizesPool = [
+            { name: "💖 Сердце", emoji: "💖", price: 15 },
+            { name: "🎁 Подарок", emoji: "🎁", price: 25 },
+            { name: "🌹 Роза", emoji: "🌹", price: 25 },
+            { name: "🎂 Торт", emoji: "🎂", price: 50 },
+            { name: "🚀 Ракета", emoji: "🚀", price: 50 },
+            { name: "🏆 Кубок", emoji: "🏆", price: 100 },
+            { name: "💎 Брил.", emoji: "💎", price: 100 }
+        ];
+
+        function initRoulette() {
+            const strip = document.getElementById('caseStrip');
+            strip.innerHTML = '';
+            for (let i = 0; i < 35; i++) {
+                const randP = prizesPool[Math.floor(Math.random() * prizesPool.length)];
+                const div = document.createElement('div');
+                div.className = 'roulette-item';
+                div.innerHTML = `${randP.emoji}<span>${randP.price}⭐</span>`;
+                strip.appendChild(div);
+            }
+        }
+        initRoulette();
+
+        function openCase() {
+            if (balance < 50) { alert("❌ Недостаточно Stars!"); return; }
+            updateBalance(balance - 50);
+            document.getElementById('openCaseBtn').disabled = true;
+            const resultEl = document.getElementById('caseResult');
+            resultEl.innerText = "Крутим рулетку...";
+
+            const strip = document.getElementById('caseStrip');
+            initRoulette(); // сбросить полосу
+            strip.style.transition = 'none';
+            strip.style.transform = 'translateX(0px)';
+
+            // Выбираем выигрышный индекс (например, 25 элемент)
+            const winIndex = 25;
+            const winningPrize = prizesPool[Math.floor(Math.random() * prizesPool.length)];
+            
+            // Заменяем элемент в рулетке на победный
+            const items = strip.children;
+            items[winIndex].innerHTML = `${winningPrize.emoji}<span>${winningPrize.price}⭐</span>`;
+
+            setTimeout(() => {
+                strip.style.transition = 'transform 4s cubic-bezier(0.15, 0.85, 0.35, 1)';
+                const itemWidth = 85; // ширина элемента + отступ
+                const offset = (winIndex * itemWidth) - (window.innerWidth / 2 - 80);
+                strip.style.transform = `translateX(-${offset}px)`;
+            }, 50);
+
+            setTimeout(() => {
+                if (winningPrize.price >= 50) updateBalance(balance + winningPrize.price);
+                resultEl.innerHTML = `🎉 Вы выиграли: <b style="color: #00ffcc;">${winningPrize.name}</b>`;
+                document.getElementById('openCaseBtn').disabled = false;
+                if (window.Telegram && window.Telegram.WebApp) {
+                    window.Telegram.WebApp.sendData(JSON.stringify({ action: "open_case", prize: winningPrize.name }));
+                }
+            }, 4100);
+        }
+
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playFlightSound() {
             if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime);
             osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.8);
             gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.8);
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.8);
+            osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.8);
         }
         function playCrashSound() {
             if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.type = 'triangle'; osc.frequency.setValueAtTime(180, audioCtx.currentTime);
             osc.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 0.5);
             gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+            osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.5);
         }
         function playCashoutSound() {
             if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.type = 'sine'; osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
             osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
             gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+            osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.4);
         }
 
         const canvas = document.getElementById('flightCanvas');
@@ -285,22 +381,6 @@
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             if (id === 'gameScreen') setTimeout(resizeCanvas, 50);
-        }
-
-        function openCase() {
-            if (balance < 150) { alert("❌ Недостаточно Stars!"); return; }
-            updateBalance(balance - 150);
-            const resultEl = document.getElementById('caseResult');
-            resultEl.innerText = "Открываем...";
-            setTimeout(() => {
-                const rand = Math.random() * 100;
-                let prize = rand < 45 ? "+5 ⭐" : rand < 80 ? "+10 ⭐" : rand < 92 ? "❤️ Сердце" : rand < 98 ? "🌹 Роза" : "🧸 Медведь";
-                if (prize.includes("⭐")) updateBalance(balance + parseInt(prize));
-                resultEl.innerHTML = `🎉 Выиграно: <b style="color: #00ffcc;">${prize}</b>`;
-                if (window.Telegram && window.Telegram.WebApp) {
-                    window.Telegram.WebApp.sendData(JSON.stringify({ action: "open_case", prize }));
-                }
-            }, 800);
         }
 
         function applyPromo() {
@@ -360,7 +440,7 @@
         }
         function buyCoinsWithStars(coins, stars) {
             updateBalance(balance + coins);
-            alert(`[ТЕСТ] Начислено ${coins} ⭐!`);
+            alert(`[ТЕСТ] Успешно начислено ${coins} ⭐!`);
         }
     </script>
 </body>
