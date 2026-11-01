@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muffin Arcade</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * { box-sizing: border-box; user-select: none; }
+        body {
+            background-color: #121019; color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0; padding: 12px; display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+        }
+        .container {
+            width: 100%; max-width: 420px; background: #1c1827; border-radius: 20px;
+            padding: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.6); display: flex; flex-direction: column; gap: 16px;
+        }
+        .top-nav {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #252033; padding: 12px 16px; border-radius: 14px; border: 1px solid #332b45;
+        }
+        .app-title {
+            font-size: 18px; font-weight: 800; letter-spacing: 0.5px;
+            background: linear-gradient(45deg, #ff9f43, #ff5252);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .balance-badge {
+            background: linear-gradient(135deg, #ffcc00, #ff9f00); color: #121019;
+            padding: 6px 12px; border-radius: 20px; font-weight: 800; font-size: 14px;
+            display: flex; align-items: center; gap: 6px; cursor: pointer;
+        }
+        .screen { display: none; flex-direction: column; gap: 16px; }
+        .screen.active { display: flex; }
+        .section-title { font-size: 16px; font-weight: 700; color: #a29bfe; margin: 0; }
+        .games-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .game-card {
+            background: #252033; border: 1px solid #332b45; border-radius: 16px;
+            padding: 16px; display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; cursor: pointer;
+        }
+        .game-card.disabled { opacity: 0.6; cursor: not-allowed; }
+        .game-icon { font-size: 42px; margin-bottom: 8px; }
+        .game-name { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+        .badge-soon {
+            position: absolute; top: 8px; right: 8px; background: #ff4757; color: white;
+            font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 8px;
+        }
+        .nav-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .nav-btn {
+            flex: 1; min-width: 45%; background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 700; font-size: 13px; cursor: pointer;
+        }
+        .nav-btn.stars-btn { background: linear-gradient(135deg, #ff9f43, #feca57); color: #121019; flex-basis: 100%; }
+        .nav-btn.cases-btn { background: linear-gradient(135deg, #e84118, #c23616); color: white; }
+        .back-btn {
+            background: #252033; color: #a29bfe; border: 1px solid #332b45;
+            padding: 8px 14px; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; align-self: flex-start;
+        }
+        .flight-container {
+            background: #0d0b14; border-radius: 16px; padding: 12px; text-align: center;
+            border: 1px solid #332b45; position: relative; overflow: hidden;
+        }
+        .flight-header { position: absolute; top: 15px; left: 0; right: 0; z-index: 10; pointer-events: none; }
+        .flight-title { font-size: 11px; color: #8c82a8; font-weight: 700; letter-spacing: 1px; }
+        .multiplier { font-size: 42px; font-weight: 900; color: #00ffcc; margin: 4px 0; text-shadow: 0 0 20px rgba(0, 255, 204, 0.4); }
+        .status { font-size: 13px; color: #ff4757; font-weight: 800; }
+        #flightCanvas { width: 100%; height: 220px; display: block; border-radius: 12px; background: radial-gradient(circle at bottom left, #1a1528 0%, #0d0b14 70%); }
+        .controls { display: flex; gap: 10px; margin-top: 15px; }
+        input { width: 35%; background: #121019; border: 1px solid #332b45; color: #fff; padding: 12px; border-radius: 12px; font-size: 16px; text-align: center; font-weight: 700; }
+        .action-btn { flex-grow: 1; background: #7b2cbf; color: white; border: none; padding: 14px; border-radius: 12px; font-size: 16px; font-weight: 800; cursor: pointer; }
+        .action-btn.cashout { background: #2ed573; color: #121019; }
+        .history-box { background: #252033; border-radius: 14px; padding: 12px; border: 1px solid #332b45; }
+        .history-title { font-size: 12px; color: #8c82a8; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; }
+        .history-list { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+        .history-item { background: #121019; padding: 6px 10px; border-radius: 8px; font-size: 13px; font-weight: 800; color: #00ffcc; white-space: nowrap; }
+        .history-item.low { color: #ff4757; }
+        .shop-grid, .stars-list { display: flex; flex-direction: column; gap: 10px; }
+        .shop-card, .stars-card { background: #252033; border: 1px solid #332b45; border-radius: 14px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; }
+        .shop-info { display: flex; align-items: center; gap: 12px; }
+        .shop-emoji { font-size: 32px; }
+        .shop-name { font-weight: 700; font-size: 15px; }
+        .shop-price { font-size: 13px; color: #ffcc00; font-weight: 800; }
+        .buy-btn { background: linear-gradient(135deg, #ff4757, #ff6b81); color: white; border: none; padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 13px; cursor: pointer; }
+        .case-box { background: #252033; border: 1px solid #332b45; border-radius: 16px; padding: 20px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+        .case-icon { font-size: 64px; }
+        .case-drop-result { font-size: 18px; font-weight: 800; color: #ffcc00; min-height: 30px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .open-case-btn { background: linear-gradient(135deg, #e84118, #c23616); color: white; border: none; padding: 14px 24px; border-radius: 14px; font-weight: 800; font-size: 16px; cursor: pointer; width: 100%; }
+        .stars-amount { font-weight: 800; font-size: 15px; color: #ffcc00; }
+        .stars-price { background: linear-gradient(135deg, #2e86de, #54a0ff); color: white; border: none; padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 13px; cursor: pointer; }
+        .promo-box { background: #252033; border: 1px solid #332b45; border-radius: 14px; padding: 12px; display: flex; gap: 8px; }
+        .promo-input { width: 65%; background: #121019; border: 1px solid #332b45; color: #fff; padding: 10px; border-radius: 10px; font-size: 14px; text-transform: uppercase; font-weight: 700; }
+        .promo-btn { flex: 1; background: #7b2cbf; color: white; border: none; border-radius: 10px; font-weight: 800; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="top-nav">
+            <div class="app-title">MUFFIN ARCADE</div>
+            <div class="balance-badge" onclick="showScreen('starsScreen')">
+                <span id="balance">100</span> ⭐
+            </div>
+        </div>
+
+        <!-- MAIN MENU -->
+        <div id="mainScreen" class="screen active">
+            <div class="section-title">🎮 Меню игры</div>
+            <div class="games-grid">
+                <div class="game-card" onclick="showScreen('gameScreen')">
+                    <div class="game-icon">🧁🚀</div>
+                    <div class="game-name">Muffin Fly</div>
+                    <div style="font-size: 11px; color: #2ed573; font-weight: 700;">ИГРАТЬ ➔</div>
+                </div>
+                <div class="game-card" onclick="showScreen('casesScreen')">
+                    <div class="game-icon">🎁</div>
+                    <div class="game-name">Кейсы</div>
+                    <div style="font-size: 11px; color: #ff9f43; font-weight: 700;">ОТКРЫТЬ ➔</div>
+                </div>
+            </div>
+
+            <!-- Promo Input in App -->
+            <div class="promo-box">
+                <input type="text" id="promoInput" class="promo-input" placeholder="ПРОМОКОД">
+                <button class="promo-btn" onclick="applyPromo()">Ввести</button>
+            </div>
+
+            <div class="nav-actions">
+                <button class="nav-btn" onclick="showScreen('shopScreen')">🛍️ Магазин</button>
+                <button class="nav-btn cases-btn" onclick="showScreen('casesScreen')">🎁 Кейсы</button>
+                <button class="nav-btn stars-btn" onclick="showScreen('starsScreen')">⭐ Пополнить Stars</button>
+            </div>
+        </div>
+
+        <!-- GAME SCREEN -->
+        <div id="gameScreen" class="screen">
+            <button class="back-btn" onclick="showScreen('mainScreen')">⬅ В меню</button>
+            <div class="flight-container">
+                <div class="flight-header">
+                    <div class="flight-title">ПОЛЕТ РАКЕТЫ-КЕКСА</div>
+                    <div class="multiplier" id="multiplier">1.00x</div>
+                    <div class="status" id="status">ОЖИДАНИЕ СТАВКИ</div>
+                </div>
+                <canvas id="flightCanvas"></canvas>
+            </div>
+            <div class="controls">
+                <input type="number" id="betAmount" value="10" min="1">
+                <button class="action-btn" id="mainBtn" onclick="handleMainAction()">СТАРТ</button>
+            </div>
+            <div class="history-box">
+                <div class="history-title">📜 Последние раунды</div>
+                <div class="history-list" id="historyList">
+                    <div class="history-item">1.85x</div>
+                    <div class="history-item low">1.05x</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CASES SCREEN -->
+        <div id="casesScreen" class="screen">
+            <button class="back-btn" onclick="showScreen('mainScreen')">⬅ В меню</button>
+            <div class="section-title">🎁 Кейсы с призами</div>
+            <div class="case-box">
+                <div style="font-size: 13px; color: #8c82a8;">Цена открытия: <b style="color: #ffcc00;">150 ⭐</b></div>
+                <div class="case-icon" id="caseIcon">🎁📦</div>
+                <div class="case-drop-result" id="caseResult">Нажмите кнопку ниже!</div>
+                <button class="open-case-btn" id="openCaseBtn" onclick="openCase()">Открыть кейс (150 ⭐)</button>
+            </div>
+        </div>
+
+        <!-- SHOP SCREEN -->
+        <div id="shopScreen" class="screen">
+            <button class="back-btn" onclick="showScreen('mainScreen')">⬅ В меню</button>
+            <div class="section-title">🛍️ Подарки Telegram</div>
+            <div class="shop-grid">
+                <div class="shop-card">
+                    <div class="shop-info">
+                        <div class="shop-emoji">🧸</div>
+                        <div><div class="shop-name">Медведь</div><div class="shop-price">500.000 ⭐</div></div>
+                    </div>
+                    <button class="buy-btn" onclick="buyGift('Медведь', 500000)">Купить</button>
+                </div>
+                <div class="shop-card">
+                    <div class="shop-info">
+                        <div class="shop-emoji">🌹</div>
+                        <div><div class="shop-name">Роза</div><div class="shop-price">700.000 ⭐</div></div>
+                    </div>
+                    <button class="buy-btn" onclick="buyGift('Роза', 700000)">Купить</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- STARS SCREEN -->
+        <div id="starsScreen" class="screen">
+            <button class="back-btn" onclick="showScreen('mainScreen')">⬅ В меню</button>
+            <div class="section-title">⭐ Пополнение Stars</div>
+            <div class="stars-list">
+                <div class="stars-card">
+                    <div><div class="stars-amount">+100 ⭐</div><div style="font-size: 11px; color: #8c82a8;">Мини</div></div>
+                    <button class="stars-price" onclick="buyCoinsWithStars(100, 5)">5 ⭐</button>
+                </div>
+                <div class="stars-card">
+                    <div><div class="stars-amount">+200 ⭐</div><div style="font-size: 11px; color: #8c82a8;">Старт</div></div>
+                    <button class="stars-price" onclick="buyCoinsWithStars(200, 10)">10 ⭐</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playFlightSound() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.8);
+            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.8);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.8);
+        }
+        function playCrashSound() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 0.5);
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+        }
+        function playCashoutSound() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+            osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+        }
+
+        const canvas = document.getElementById('flightCanvas');
+        const ctx = canvas.getContext('2d');
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.clientWidth - 24;
+            canvas.height = 220;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        let progress = 0, isExploded = false;
+        function renderFlightCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = '#1e1a2c'; ctx.lineWidth = 1;
+            for (let x = 0; x < canvas.width; x += 30) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke(); }
+            for (let y = 0; y < canvas.height; y += 30) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke(); }
+            
+            const startX = 20, startY = canvas.height - 20;
+            const endX = startX + (canvas.width - 50) * Math.min(progress, 1);
+            const endY = startY - (canvas.height - 70) * Math.min(progress, 1);
+            if (progress > 0) {
+                ctx.strokeStyle = isExploded ? '#ff4757' : '#00ffcc'; ctx.lineWidth = 4;
+                ctx.beginPath(); ctx.moveTo(startX, startY); ctx.quadraticCurveTo(startX + 50, startY, endX, endY); ctx.stroke();
+                ctx.font = '28px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(isExploded ? '💥' : '🚀', endX, endY);
+            }
+        }
+        renderFlightCanvas();
+
+        let balance = localStorage.getItem('muffin_balance') ? parseInt(localStorage.getItem('muffin_balance')) : 5000;
+        document.getElementById('balance').innerText = balance.toLocaleString('ru-RU');
+        let gameInterval = null, soundLoopInterval = null, currentMultiplier = 1.00, currentBet = 10, isPlaying = false, crashPoint = 1.00;
+
+        function updateBalance(newBalance) {
+            balance = newBalance;
+            document.getElementById('balance').innerText = balance.toLocaleString('ru-RU');
+            localStorage.setItem('muffin_balance', balance);
+        }
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            if (id === 'gameScreen') setTimeout(resizeCanvas, 50);
+        }
+
+        function openCase() {
+            if (balance < 150) { alert("❌ Недостаточно Stars!"); return; }
+            updateBalance(balance - 150);
+            const resultEl = document.getElementById('caseResult');
+            resultEl.innerText = "Открываем...";
+            setTimeout(() => {
+                const rand = Math.random() * 100;
+                let prize = rand < 45 ? "+5 ⭐" : rand < 80 ? "+10 ⭐" : rand < 92 ? "❤️ Сердце" : rand < 98 ? "🌹 Роза" : "🧸 Медведь";
+                if (prize.includes("⭐")) updateBalance(balance + parseInt(prize));
+                resultEl.innerHTML = `🎉 Выиграно: <b style="color: #00ffcc;">${prize}</b>`;
+                if (window.Telegram && window.Telegram.WebApp) {
+                    window.Telegram.WebApp.sendData(JSON.stringify({ action: "open_case", prize }));
+                }
+            }, 800);
+        }
+
+        function applyPromo() {
+            const code = document.getElementById('promoInput').value.trim();
+            if (!code) { alert("Введите промокод!"); return; }
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.sendData(JSON.stringify({ action: "use_promo", code }));
+                alert(`⏳ Промокод ${code} отправлен боту!`);
+            }
+        }
+
+        function handleMainAction() {
+            if (!isPlaying) startGame(); else cashOut();
+        }
+        function startGame() {
+            currentBet = parseInt(document.getElementById('betAmount').value);
+            if (currentBet > balance) { alert("Мало Stars!"); return; }
+            updateBalance(balance - currentBet);
+            isPlaying = true; isExploded = false; progress = 0; currentMultiplier = 1.00;
+            document.getElementById('mainBtn').innerText = "ЗАБРАТЬ";
+            document.getElementById('mainBtn').className = "action-btn cashout";
+            document.getElementById('status').innerText = "ПОЛЕТ ИДЕТ...";
+            crashPoint = parseFloat((1.1 + Math.random() * 3.5).toFixed(2));
+            playFlightSound();
+            soundLoopInterval = setInterval(playFlightSound, 700);
+            gameInterval = setInterval(() => {
+                currentMultiplier += 0.03; progress += 0.015;
+                document.getElementById('multiplier').innerText = currentMultiplier.toFixed(2) + 'x';
+                renderFlightCanvas();
+                if (currentMultiplier >= crashPoint) crashGame();
+            }, 100);
+        }
+        function cashOut() {
+            if (!isPlaying) return;
+            clearInterval(gameInterval); clearInterval(soundLoopInterval); playCashoutSound();
+            let win = Math.floor(currentBet * currentMultiplier);
+            updateBalance(balance + win);
+            document.getElementById('status').innerText = `ВЫИГРАНО: ${win} ⭐`;
+            resetGameButton();
+        }
+        function crashGame() {
+            clearInterval(gameInterval); clearInterval(soundLoopInterval); playCrashSound();
+            isPlaying = false; isExploded = true; renderFlightCanvas();
+            document.getElementById('status').innerText = `РАКЕТА РАЗБИЛАСЬ`;
+            resetGameButton();
+        }
+        function resetGameButton() {
+            isPlaying = false;
+            document.getElementById('mainBtn').innerText = "СТАРТ";
+            document.getElementById('mainBtn').className = "action-btn";
+        }
+        function buyGift(gift, price) {
+            if (balance >= price) {
+                updateBalance(balance - price);
+                alert(`🎉 Куплено: ${gift}!`);
+            } else { alert("❌ Не хватает средств!"); }
+        }
+        function buyCoinsWithStars(coins, stars) {
+            updateBalance(balance + coins);
+            alert(`[ТЕСТ] Начислено ${coins} ⭐!`);
+        }
+    </script>
+</body>
+</html>
