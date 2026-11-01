@@ -101,7 +101,7 @@
         <div class="top-nav">
             <div class="app-title">MUFFIN ARCADE</div>
             <div class="balance-badge" onclick="showScreen('starsScreen')">
-                <span id="balance">5000000</span> ⭐
+                <span id="balance">3000</span> ⭐
             </div>
         </div>
 
@@ -145,7 +145,7 @@
                 <canvas id="flightCanvas"></canvas>
             </div>
             <div class="controls">
-                <input type="number" id="betAmount" value="1000" min="100">
+                <input type="number" id="betAmount" value="100" min="10">
                 <button class="action-btn" id="mainBtn" onclick="handleMainAction()">СТАРТ</button>
             </div>
             <div class="history-box">
@@ -162,7 +162,7 @@
             <button class="back-btn" onclick="showScreen('mainScreen')">⬅ В меню</button>
             <div class="section-title">🎁 Кейс с подарками</div>
             <div class="case-box">
-                <div style="font-size: 13px; color: #8c82a8;">Цена открытия: <b style="color: #ffcc00;">100.000 ⭐</b></div>
+                <div style="font-size: 13px; color: #8c82a8;">Цена открытия: <b style="color: #ffcc00;">555 ⭐</b></div>
                 
                 <div class="case-roulette-window">
                     <div class="case-roulette-pointer"></div>
@@ -170,7 +170,7 @@
                 </div>
 
                 <div class="case-drop-result" id="caseResult">Нажмите кнопку ниже!</div>
-                <button class="open-case-btn" id="openCaseBtn" onclick="openCase()">Открыть кейс (100k ⭐)</button>
+                <button class="open-case-btn" id="openCaseBtn" onclick="openCase()">Открыть кейс (555 ⭐)</button>
             </div>
         </div>
 
@@ -276,8 +276,8 @@
         initRoulette();
 
         function openCase() {
-            if (balance < 100000) { alert("❌ Недостаточно Stars! Нужно 100k"); return; }
-            updateBalance(balance - 100000);
+            if (balance < 555) { alert("❌ Недостаточно Stars! Нужно 555 ⭐"); return; }
+            updateBalance(balance - 555);
             document.getElementById('openCaseBtn').disabled = true;
             const resultEl = document.getElementById('caseResult');
             resultEl.innerText = "Крутим рулетку...";
@@ -367,9 +367,10 @@
         }
         renderFlightCanvas();
 
-        let balance = localStorage.getItem('muffin_balance') ? parseInt(localStorage.getItem('muffin_balance')) : 5000000;
+        // Установлен начальный баланс 3000 Stars (проверяем localStorage, если там уже был другой — можно сбросить или обновить)
+        let balance = localStorage.getItem('muffin_balance') ? parseInt(localStorage.getItem('muffin_balance')) : 3000;
         document.getElementById('balance').innerText = balance.toLocaleString('ru-RU');
-        let gameInterval = null, soundLoopInterval = null, currentMultiplier = 1.00, currentBet = 1000, isPlaying = false, crashPoint = 1.00;
+        let gameInterval = null, soundLoopInterval = null, currentMultiplier = 1.00, currentBet = 100, isPlaying = false, crashPoint = 1.00;
 
         function updateBalance(newBalance) {
             balance = newBalance;
